@@ -1,0 +1,56 @@
+# Unity generated — never commit these
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Ll]ogs/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+/[Uu]ser[Ss]ettings/
+
+# Build output
+/[Bb]uild/
+/[Bb]uilds/
+*.apk
+*.aab
+*.app
+*.unitypackage
+*.unitypackage.meta
+
+# IDE & OS
+.vs/
+.idea/
+.gradle/
+*.csproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.DotSettings.user
+*.log
+*.blend1
+*.blend1.meta
+
+# Unity crash/test
+sysinfo.txt
+mono_crash.*
+crashlytics-build.properties
+InitTestScene*.unity*
+/[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# Addressables (generated)
+/ServerData/
+/[Aa]ssets/StreamingAssets/aa*
+/[Aa]ssets/AddressableAssetsData/link.xml*
+/[Aa]ssets/Addressables_Temp*
+/[Aa]ssets/AddressableAssetsData/*/*.bin*
+
+# Visual Scripting (generated)
+/[Aa]ssets/Unity.VisualScripting.Generated/
