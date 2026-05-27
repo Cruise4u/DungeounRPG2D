@@ -4,4 +4,5 @@ public interface ITarget
     bool IsAlive { get; }
     void TakeDamage(int damage);
     void Heal(int amount);
+    void GetSE(StatusEffect effect);
 }

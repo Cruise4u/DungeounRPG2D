@@ -7,11 +7,18 @@ public abstract class Character : MonoBehaviour, ITarget
 {
     public CharacterStats Stats { get; private set; }
 
+    // Set by DiceManager after RollAll so skills can read the roll result during Execute.
+    public DiceRollResult CurrentRollResult { get; set; }
+
     // ITarget
     public string TargetName => gameObject.name;
     public bool IsAlive => Stats.CurrentHp >= 1;
     public void TakeDamage(int damage) => Stats.TakeDamage(damage);
     public void Heal(int amount)       => Stats.Heal(amount);
+    public void GetSE(StatusEffect effect)
+    {
+        throw new System.NotImplementedException();
+    }
 
     [SerializeField] private CombatSettingsSO combatSettings;
 
