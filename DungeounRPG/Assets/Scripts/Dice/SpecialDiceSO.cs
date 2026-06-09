@@ -1,8 +1,12 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "SpecialDice", menuName = "Dice/Special Dice")]
 public class SpecialDiceSO : ScriptableObject
 {
+    
+    public List<DicePipID> pips;
+    
     [Min(1)]
     public int minRoll = 1;
 
@@ -17,6 +21,7 @@ public class SpecialDiceSO : ScriptableObject
     [Tooltip("Multiplier applied to the roll. Used by the Multiplication pip.")]
     public int multiplier = 1;
 
+    
     [Tooltip("Status effect type applied to the target. Used by the StatusEffect pip.")]
     public StatusEffectType statusEffectType;
 
