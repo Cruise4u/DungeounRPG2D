@@ -1,15 +1,29 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class HealthBar : MonoBehaviour
+public class HealthBar : MonoBehaviour, IPoolSetup
 {
-    [SerializeField] private TextMeshProUGUI healthText;
+    // [SerializeField] private TextMeshProUGUI healthText;
+    [SerializeField] private Image healthBar;
 
     public GameObject rootGO;
     private CharacterStats _stats;
 
     private void Awake()
     {
+        ResolveStats();
+    }
+
+    public void OnPoolSetup()
+    {
+        ResolveStats();
+    }
+
+    private void ResolveStats()
+    {
+        if (_stats != null) return;
+
         _stats = rootGO.GetComponent<CharacterStats>();
         if (_stats == null)
             Debug.LogError($"[HealthBar] No CharacterStats found in parent hierarchy of {gameObject.name}.", this);
@@ -35,7 +49,10 @@ public class HealthBar : MonoBehaviour
 
     private void UpdateUI(int currentHp, int maxHp)
     {
-        if (healthText != null)
-            healthText.text = $"{currentHp} / {maxHp}";
+        if (healthBar != null)
+        {
+            healthBar.fillAmount = (float)currentHp / (float)maxHp;
+        }
     }
+
 }

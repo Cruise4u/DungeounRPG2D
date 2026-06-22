@@ -40,11 +40,9 @@ public class CombatManager : MonoBehaviour
             Debug.Log("Event Round Start Triggered");
 
             State = CombatState.PlayerPhase;
-            yield return StartCoroutine(playerTeam.TakeTurn(this));
             if (CheckVictory()) yield break;
 
             State = CombatState.AIPhase;
-            yield return StartCoroutine(enemyTeam.TakeTurn(this));
             if (CheckDefeat()) yield break;
         }
     }
@@ -70,4 +68,6 @@ public class CombatManager : MonoBehaviour
         }
         return false;
     }
+    
+    
 }

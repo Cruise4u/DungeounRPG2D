@@ -10,30 +10,7 @@ public class SkillSO : CharacterActionSO
 
     public override void Execute(Character user, List<ITarget> targets)
     {
-        var rollResult = user.CurrentRollResult;
-
-        if (rollResult == null)
-        {
-            Debug.LogWarning($"[SkillSO] {user.name} has no DiceRollResult. Was RollAll called this turn?");
-            return;
-        }
-
-        int damage = Mathf.RoundToInt(user.Stats.AttackPower * DamageMultiplier * rollResult.NumericValue);
-
-        foreach (var target in targets.Where(t => t != null && t.IsAlive))
-            target.TakeDamage(damage);
-
-        // Non-numeric effects (regen, summoning, buffs) are applied to the caster
-        if (rollResult.Effects.Count > 0)
-        {
-            var effectHandler = user.GetComponent<StatusEffectHandler>();
-            if (effectHandler != null)
-                effectHandler.Apply(rollResult.Effects, user);
-            else
-                Debug.LogWarning($"[SkillSO] {user.name} has dice effects but no StatusEffectHandler component.");
-        }
-
-        Debug.Log($"[SkillSO] {user.name} used {ActionName} for {damage} damage (roll: {rollResult.NumericValue}).");
+        
     }
 }
 

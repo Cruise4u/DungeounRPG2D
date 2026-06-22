@@ -8,7 +8,6 @@ public abstract class Character : MonoBehaviour, ITarget
     public CharacterStats Stats { get; private set; }
 
     // Set by DiceManager after RollAll so skills can read the roll result during Execute.
-    public DiceRollResult CurrentRollResult { get; set; }
 
     // ITarget
     public string TargetName => gameObject.name;

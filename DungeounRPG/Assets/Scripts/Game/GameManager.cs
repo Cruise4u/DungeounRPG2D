@@ -40,6 +40,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        combatManager.StartCombat();
+        // combatManager.StartCombat();
     }
 }
