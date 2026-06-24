@@ -6,6 +6,9 @@ using UnityEngine;
 public abstract class Character : MonoBehaviour, ITarget
 {
     public CharacterStats Stats { get; private set; }
+    public EEvolutionTypeID EvolutionType { get; private set; } = EEvolutionTypeID.Basic;
+
+    private SpriteRenderer _spriteRenderer;
 
     // Set by DiceManager after RollAll so skills can read the roll result during Execute.
 
@@ -37,6 +40,16 @@ public abstract class Character : MonoBehaviour, ITarget
         Stats = GetComponent<CharacterStats>();
         if (Stats == null)
             Debug.LogError($"[Character] Missing CharacterStats on {gameObject.name}.", this);
+
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    /// <summary>Mirrors CharacterToken.SetEvolution — tints the sprite to reflect the current evolution tier.</summary>
+    public void SetEvolution(EEvolutionTypeID evolution, Color color)
+    {
+        EvolutionType = evolution;
+        if (_spriteRenderer != null)
+            _spriteRenderer.color = color;
     }
 
     // Single entry point called by CombatManager for any characterRequisitor type.

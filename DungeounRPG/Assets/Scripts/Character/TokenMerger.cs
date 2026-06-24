@@ -1,9 +1,12 @@
+using System.Collections.Generic;
+using DungeonRPG.Grid;
 using UnityEngine;
 
-public class CharacterTokenMerger : MonoBehaviour
+public class TokenMerger : MonoBehaviour
 {
     [SerializeField] private Team team;
-    [SerializeField] private UnitSpawner unitSpawner;
+    [SerializeField] private CharacterSpawner characterSpawner;
+    [SerializeField] private CharacterMerger characterMerger;
 
     [Header("Combat Zone")]
     [SerializeField] private CharacterSlot[] combatSlots;
@@ -15,6 +18,9 @@ public class CharacterTokenMerger : MonoBehaviour
     public Color ultraColor    = Color.yellow;
 
     private CharacterSlot[] _slots;
+
+    // token → the combat-zone Character it currently owns (only set once a token reaches Super+)
+    private readonly Dictionary<CharacterToken, Character> _combatCharacters = new();
 
     private void Awake()
     {
@@ -47,30 +53,55 @@ public class CharacterTokenMerger : MonoBehaviour
     {
         if (tokenFrom.EvolutionType != tokenTo.EvolutionType)
         {
-            Debug.LogWarning("[CharacterTokenMerger] Cannot merge tokens with different EvolutionTypeID.");
+            Debug.LogWarning("[TokenMerger] Cannot merge tokens with different EvolutionTypeID.");
             return false;
         }
 
         if (tokenTo.EvolutionType == EEvolutionTypeID.Ultra)
         {
-            Debug.LogWarning("[CharacterTokenMerger] Token is already at max evolution (Ultra).");
+            Debug.LogWarning("[TokenMerger] Token is already at max evolution (Ultra).");
             return false;
         }
 
         EEvolutionTypeID next = NextEvolution(tokenTo.EvolutionType);
         tokenTo.SetEvolution(next, ColorForEvolution(next));
 
+        // var characterFrom = _combatCharacters[tokenFrom];
+        _combatCharacters.TryGetValue(tokenFrom, out var charFrom);
+        _combatCharacters.TryGetValue(tokenTo, out var charTo);
+        bool bothInCombat = charFrom != null && charTo != null;
+        
         tokenFrom.CurrentSlot?.Vacate();
+        GridManager.Instance.ClearTileWithItem(tokenFrom.gameObject);
+        _combatCharacters.Remove(tokenFrom);
         tokenFrom.ResetToken();
         Destroy(tokenFrom.gameObject);
 
-        if (next == EEvolutionTypeID.Super)
-            SpawnInCombatZone(tokenTo);
+        if (bothInCombat)
+            MergeCombatCharacters(charFrom, charTo, next);
+        else if (next == EEvolutionTypeID.Super)
+            SpawnInCombatZone(tokenTo, next);
 
         return true;
     }
 
-    private void SpawnInCombatZone(CharacterToken token)
+    /// <summary>Both tokens already had a combat-zone Character: free charFrom's slot and merge its stats into charTo.</summary>
+    private void MergeCombatCharacters(Character charFrom, Character charTo, EEvolutionTypeID evolution)
+    {
+        FindSlotForCharacter(charFrom)?.VacateCharacter();
+
+        if (characterMerger != null)
+            characterMerger.MergeCharacters(charFrom, charTo, evolution, ColorForEvolution(evolution));
+    }
+
+    private CharacterSlot FindSlotForCharacter(Character character)
+    {
+        foreach (var slot in combatSlots)
+            if (slot != null && slot.OccupantCharacter == character) return slot;
+        return null;
+    }
+
+    private void SpawnInCombatZone(CharacterToken token, EEvolutionTypeID evolution)
     {
         if (token.CharacterPrefab == null) return;
 
@@ -86,17 +117,19 @@ public class CharacterTokenMerger : MonoBehaviour
 
         if (freeSlot == null)
         {
-            Debug.LogWarning("[CharacterTokenMerger] No free combat slot available to spawn character.");
+            Debug.LogWarning("[TokenMerger] No free combat slot available to spawn character.");
             return;
         }
 
-        var go = unitSpawner != null
-            ? unitSpawner.SpawnCharacter(token.poolId, freeSlot.transform.position)
+        var go = characterSpawner != null
+            ? characterSpawner.Spawn((ECharacterPoolID)(int)token.poolId, freeSlot.transform.position)
             : Instantiate(token.CharacterPrefab, freeSlot.transform.position, Quaternion.identity);
         if (go.TryGetComponent<Character>(out var character))
         {
+            character.SetEvolution(evolution, ColorForEvolution(evolution));
             team.AddMember(character);
             freeSlot.OccupyCharacter(character);
+            _combatCharacters[token] = character;
         }
     }
 }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5261e199f1020b741b83443b141935b3, type: 3}
   m_Name: AI_Character_Stats_001
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStatsSO
-  maxHp: 100
+  maxHp: 50
   attackPower: 10
   armor: 5
   speed: 5

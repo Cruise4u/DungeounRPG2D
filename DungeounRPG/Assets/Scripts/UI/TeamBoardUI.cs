@@ -15,9 +15,8 @@ public class TeamBoardUI : MonoBehaviour
     [SerializeField] private Team rosterTeam;
     [SerializeField] private Team combatTeam;
 
-    [Header("Roster panel  (all squad members)")]
-    [SerializeField] private CharacterCardUI rosterCardPrefab;
-    [SerializeField] private Transform rosterContainer;
+    [Header("Roster panel  (pre-made panels, player team only)")]
+    [SerializeField] private List<CharacterCardUI> rosterPanels = new();
 
     [Header("Combat panel  (active fighters only)")]
     [SerializeField] private CharacterCardUI combatCardPrefab;
@@ -28,8 +27,21 @@ public class TeamBoardUI : MonoBehaviour
     // character → card in the combat panel
     private readonly Dictionary<Character, CharacterCardUI> _combatCards = new();
 
+    // pre-made roster panels not currently assigned to a character
+    private readonly Queue<CharacterCardUI> _freeRosterPanels = new();
+
     // which roster members are currently in the combat team
     private readonly HashSet<Character> _inCombat = new();
+
+    private void Awake()
+    {
+        foreach (var panel in rosterPanels)
+        {
+            if (panel == null) continue;
+            panel.gameObject.SetActive(false);
+            _freeRosterPanels.Enqueue(panel);
+        }
+    }
 
     private void OnEnable()
     {
@@ -75,10 +87,8 @@ public class TeamBoardUI : MonoBehaviour
         t.OnMemberAdded   -= OnRosterMemberAdded;
         t.OnMemberRemoved -= OnRosterMemberRemoved;
 
-        foreach (var card in _rosterCards.Values)
-            Destroy(card.gameObject);
-
-        _rosterCards.Clear();
+        foreach (var character in new List<Character>(_rosterCards.Keys))
+            DestroyRosterCard(character);
     }
 
     private void OnRosterMemberAdded(Character c)   => SpawnRosterCard(c);
@@ -88,7 +98,14 @@ public class TeamBoardUI : MonoBehaviour
     {
         if (_rosterCards.ContainsKey(character)) return;
 
-        var card = Instantiate(rosterCardPrefab, rosterContainer);
+        if (_freeRosterPanels.Count == 0)
+        {
+            Debug.LogWarning($"[TeamBoardUI] No free roster panel available for {character.TargetName}.");
+            return;
+        }
+
+        var card = _freeRosterPanels.Dequeue();
+        card.gameObject.SetActive(true);
         card.Bind(character);
         card.SetInCombat(_inCombat.Contains(character));
         _rosterCards[character] = card;
@@ -98,7 +115,9 @@ public class TeamBoardUI : MonoBehaviour
     {
         if (!_rosterCards.TryGetValue(character, out var card)) return;
         _rosterCards.Remove(character);
-        Destroy(card.gameObject);
+
+        card.gameObject.SetActive(false);
+        _freeRosterPanels.Enqueue(card);
     }
 
     // ── combat ──────────────────────────────────────────────────────────────
@@ -131,9 +150,9 @@ public class TeamBoardUI : MonoBehaviour
         // Spawn card in combat panel
         if (!_combatCards.ContainsKey(character))
         {
-            var card = Instantiate(combatCardPrefab, combatContainer);
-            card.Bind(character);
-            _combatCards[character] = card;
+            // var card = Instantiate(combatCardPrefab, combatContainer);
+            // card.Bind(character);
+            // _combatCards[character] = card;
         }
 
         // Mark the matching roster card

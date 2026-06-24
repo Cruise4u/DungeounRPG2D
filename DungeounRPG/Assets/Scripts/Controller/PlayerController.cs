@@ -19,7 +19,7 @@ public class PlayerController : CharacterController
     // ─── Token drag & merge ───────────────────────────────────────────────────
 
     [Header("Token Drag & Merge")]
-    [SerializeField] private CharacterTokenMerger tokenMerger;
+    [SerializeField] private TokenMerger tokenMerger;
     [SerializeField] private LayerMask tokenLayerMask = ~0;
     [SerializeField] private float snapThreshold = 0.5f;
 

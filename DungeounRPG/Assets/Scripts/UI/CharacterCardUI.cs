@@ -33,12 +33,12 @@ public class CharacterCardUI : MonoBehaviour
 
     public void Bind(Character character)
     {
-        _stats = character.Stats;
-        _effectHandler = character.GetComponent<StatusEffectHandler>();
-
         if (nameLabel != null)
             nameLabel.text = character.TargetName;
-
+        
+        _stats = character.Stats;
+        _effectHandler = character.GetComponent<StatusEffectHandler>();
+        
         _stats.OnHpChanged += OnHpChanged;
         OnHpChanged(_stats.CurrentHp, _stats.MaxHp);
 
