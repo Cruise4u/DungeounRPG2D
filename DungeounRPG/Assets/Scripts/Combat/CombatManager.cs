@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum CombatState { Idle, PlayerPhase, AIPhase, Victory, Defeat }
@@ -13,8 +14,8 @@ public class CombatManager : MonoBehaviour
     public CombatState State { get; private set; } = CombatState.Idle;
     public int Round { get; private set; }
 
-    public System.Collections.Generic.List<ITarget> AlivePlayerCharacters => playerTeam.AliveMembers;
-    public System.Collections.Generic.List<ITarget> AliveEnemyCharacters  => enemyTeam.AliveMembers;
+    public List<ITarget> AlivePlayerCharacters => playerTeam.AliveMembers;
+    public List<ITarget> AliveEnemyCharacters  => enemyTeam.AliveMembers;
 
     public void StartCombat()
     {
@@ -68,6 +69,4 @@ public class CombatManager : MonoBehaviour
         }
         return false;
     }
-    
-    
 }

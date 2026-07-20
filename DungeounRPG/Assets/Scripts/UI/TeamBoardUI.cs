@@ -46,13 +46,13 @@ public class TeamBoardUI : MonoBehaviour
     private void OnEnable()
     {
         if (rosterTeam != null) BindRoster(rosterTeam);
-        if (combatTeam != null) BindCombat(combatTeam);
+        if (combatTeam != null) BindCombatMembers(combatTeam);
     }
 
     private void OnDisable()
     {
         if (rosterTeam != null) UnbindRoster(rosterTeam);
-        if (combatTeam != null) UnbindCombat(combatTeam);
+        if (combatTeam != null) UnbindCombatMembers(combatTeam);
     }
 
     // ── public API ──────────────────────────────────────────────────────────
@@ -66,9 +66,9 @@ public class TeamBoardUI : MonoBehaviour
 
     public void SetCombatTeam(Team team)
     {
-        if (combatTeam != null) UnbindCombat(combatTeam);
+        if (combatTeam != null) UnbindCombatMembers(combatTeam);
         combatTeam = team;
-        BindCombat(combatTeam);
+        BindCombatMembers(combatTeam);
     }
 
     // ── roster ──────────────────────────────────────────────────────────────
@@ -122,7 +122,7 @@ public class TeamBoardUI : MonoBehaviour
 
     // ── combat ──────────────────────────────────────────────────────────────
 
-    private void BindCombat(Team t)
+    private void BindCombatMembers(Team t)
     {
         t.OnMemberAdded   += OnCombatMemberAdded;
         t.OnMemberRemoved += OnCombatMemberRemoved;
@@ -131,7 +131,7 @@ public class TeamBoardUI : MonoBehaviour
             OnCombatMemberAdded(member);
     }
 
-    private void UnbindCombat(Team t)
+    private void UnbindCombatMembers(Team t)
     {
         t.OnMemberAdded   -= OnCombatMemberAdded;
         t.OnMemberRemoved -= OnCombatMemberRemoved;
