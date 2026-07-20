@@ -43,18 +43,12 @@ public class PlayerController : CharacterController
 
     private void OnEnable()
     {
-        GameEventSingleton.OnPlayerTurnStart.Subscribe(OnTeamTurnStart);
-        GameEventSingleton.OnPlayerTurnEnd.Subscribe(OnTeamTurnEnd);
-        GameEventSingleton.OnPlayerCharacterTurnStart.Subscribe(OnCharacterTurnStart);
-        GameEventSingleton.OnPlayerCharacterTurnEnd.Subscribe(OnCharacterTurnEnd);
+
     }
 
     private void OnDisable()
     {
-        GameEventSingleton.OnPlayerTurnStart.Unsubscribe(OnTeamTurnStart);
-        GameEventSingleton.OnPlayerTurnEnd.Unsubscribe(OnTeamTurnEnd);
-        GameEventSingleton.OnPlayerCharacterTurnStart.Unsubscribe(OnCharacterTurnStart);
-        GameEventSingleton.OnPlayerCharacterTurnEnd.Unsubscribe(OnCharacterTurnEnd);
+
     }
 
     private void Update()

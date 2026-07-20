@@ -12,19 +12,7 @@ public static class GameEventSingleton
     public static readonly TypedGameEvent<int> OnRoundStart = new("OnRoundStart");
     public static readonly GameEvent OnPlayerVictory        = new("OnPlayerVictory");
     public static readonly GameEvent OnPlayerDefeat         = new("OnPlayerDefeat");
-
-    // ── Team turns ────────────────────────────────────────────────────────
-    public static readonly TypedGameEvent<PlayerTeam> OnPlayerTurnStart = new("OnPlayerTurnStart");
-    public static readonly TypedGameEvent<PlayerTeam> OnPlayerTurnEnd   = new("OnPlayerTurnEnd");
-    public static readonly TypedGameEvent<AITeam>     OnAITurnStart     = new("OnAITurnStart");
-    public static readonly TypedGameEvent<AITeam>     OnAITurnEnd       = new("OnAITurnEnd");
-
-    // ── Per-characterRequisitor turn (still needed by PlayerController + PlayerCharacter) ──
-    public static readonly TypedGameEvent<PlayerCharacter> OnPlayerCharacterTurnStart = new("OnPlayerCharacterTurnStart");
-    public static readonly TypedGameEvent<PlayerCharacter> OnPlayerCharacterTurnEnd   = new("OnPlayerCharacterTurnEnd");
-
-    // ── Actions ───────────────────────────────────────────────────────────
-    public static readonly TypedGameEvent<AttackData> OnCharacterAttacked = new("OnCharacterAttacked");
+    
 }
 
 public readonly struct AttackData
