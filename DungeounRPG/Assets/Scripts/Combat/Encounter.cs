@@ -59,13 +59,11 @@ public class Encounter : MonoBehaviour
                 }
 
                 var slot = enemySlots[slotIndex++];
+                Debug.Log("enemySpawner is : " + enemySpawner);
                 var go = enemySpawner.Spawn(entry.poolId, slot.transform.position);
                 if (go == null || !go.TryGetComponent<Character>(out var character)) continue;
-
                 if (character is AICharacter aiCharacter)
-                    aiCharacter.AssignController(enemyController);
-
-                enemyTeam.AddMember(character);
+                    enemyTeam.AddMember(character);
                 slot.OccupyCharacter(character);
                 spawned++;
             }

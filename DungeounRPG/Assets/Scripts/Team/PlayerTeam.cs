@@ -17,6 +17,7 @@ public class PlayerTeam : Team
         if (_pending.Contains(character))
             _selectedCharacter = character;
     }
+    
 }
 
 
