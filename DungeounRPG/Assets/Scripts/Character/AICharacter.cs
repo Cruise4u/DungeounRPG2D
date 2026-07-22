@@ -10,7 +10,7 @@ public class AICharacter : Character
     protected override void Awake()
     {
         base.Awake();
-        _controller = GetComponent<AIController>();
+        _controller = FindFirstObjectByType<AIController>();
         if (_controller == null)
             Debug.LogError($"[AICharacter] Missing AIController on {gameObject.name}.", this);
     }

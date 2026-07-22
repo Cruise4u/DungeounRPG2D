@@ -1,0 +1,259 @@
+<svg viewBox="0 0 1700 1300" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>UML class diagram of DungeounRPG project</title>
+<desc>Class diagram showing Character, Combat, Team, Actions/Skills, Grid, Controller, Input, UI and Events subsystems with inheritance and association relationships.</desc>
+<defs>
+<marker id="tri" markerWidth="14" markerHeight="14" refX="12" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 Z" fill="#ffffff" stroke="#333333"/></marker>
+<marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#666666" stroke-width="1.3"/></marker>
+</defs>
+<style>
+.box{fill:#f5f5f5;stroke:#999999;stroke-width:1.2;}
+.hdr{fill:#dce8f5;stroke:#999999;stroke-width:1.2;}
+.title{font:bold 13px sans-serif;fill:#111111;}
+.itf{font:italic bold 12px sans-serif;fill:#111111;}
+.body{font:11px monospace;fill:#444444;}
+.sec{font:11px sans-serif;fill:#666666;}
+.inh{stroke:#333333;stroke-width:1.4;fill:none;marker-end:url(#tri);}
+.assoc{stroke:#888888;stroke-width:1.1;fill:none;marker-end:url(#arr);stroke-dasharray:3,2;}
+.label{font:11px sans-serif;fill:#666666;}
+</style>
+<rect width="1700" height="1300" fill="#ffffff"/>
+
+<text x="20" y="26" class="sec" font-size="13">Subsystems: Character • Combat/Team • Actions &amp; Skills • Grid • Controllers/Input • UI • Events (legend: solid arrow = inherits, dashed arrow = uses/has-a)</text>
+
+<g>
+<rect x="20" y="50" width="230" height="64" class="hdr"/>
+<text x="30" y="68" class="title">Character</text>
+<text x="30" y="84" class="body">+ Stats: CharacterStats</text>
+<text x="30" y="98" class="body">+ TakeTurn(): IEnumerator</text>
+<rect x="20" y="50" width="230" height="64" class="box" fill="none"/>
+
+<rect x="20" y="150" width="230" height="40" class="box"/>
+<text x="30" y="168" class="title">PlayerCharacter</text>
+<text x="30" y="182" class="body">+ EndTurn()</text>
+
+<rect x="280" y="150" width="230" height="48" class="box"/>
+<text x="290" y="168" class="title">AICharacter</text>
+<text x="290" y="182" class="body">- controller: AIController</text>
+
+<rect x="20" y="230" width="230" height="80" class="box"/>
+<text x="30" y="248" class="title">CharacterStats</text>
+<text x="30" y="262" class="body">MaxHp/CurrentHp/Atk/Armor</text>
+<text x="30" y="276" class="body">+ TakeDamage(int)</text>
+<text x="30" y="290" class="body">+ Heal(int)</text>
+<text x="30" y="303" class="body">→ baseStats: CharacterStatsSO</text>
+
+<rect x="280" y="230" width="230" height="36" class="box"/>
+<text x="290" y="248" class="title">CharacterStatsSO</text>
+<text x="290" y="261" class="body">maxHp, attackPower, armor</text>
+
+<rect x="20" y="330" width="230" height="60" class="box"/>
+<text x="30" y="348" class="title">CharacterToken</text>
+<text x="30" y="362" class="body">EvolutionType, poolId</text>
+<text x="30" y="376" class="body">+ SetSlot()/SetEvolution()</text>
+
+<rect x="280" y="330" width="230" height="56" class="box"/>
+<text x="290" y="348" class="title">CharacterSlot</text>
+<text x="290" y="362" class="body">OccupantToken/Character</text>
+<text x="290" y="376" class="body">+ Occupy()/Vacate()</text>
+
+<rect x="20" y="410" width="490" height="50" class="box"/>
+<text x="30" y="428" class="title">CharacterTokenMerger</text>
+<text x="30" y="442" class="body">+ MergeTokens(from,to): bool   + SpawnInCombatZone()</text>
+
+<rect x="560" y="50" width="190" height="64" class="box"/>
+<text x="570" y="68" class="itf">«interface» ITarget</text>
+<text x="570" y="84" class="body">TakeDamage(int)</text>
+<text x="570" y="98" class="body">Heal(int) / GetSE()</text>
+</g>
+
+<path d="M100,150 L100,114" class="inh"/>
+<path d="M395,150 L160,114" class="inh"/>
+<path d="M250,82 L560,82" class="assoc"/>
+
+<g>
+<rect x="800" y="50" width="230" height="64" class="box"/>
+<text x="810" y="68" class="title">CharacterActionSO</text>
+<text x="810" y="84" class="body">ActionName, TargetType</text>
+<text x="810" y="98" class="body">+ Execute(user, targets)</text>
+
+<rect x="800" y="150" width="150" height="40" class="box"/>
+<text x="810" y="168" class="title">DamageActionSO</text>
+<text x="810" y="182" class="body">DamageMultiplier</text>
+
+<rect x="960" y="150" width="150" height="40" class="box"/>
+<text x="970" y="168" class="title">HealActionSO</text>
+<text x="970" y="182" class="body">HealAmount</text>
+
+<rect x="1120" y="150" width="150" height="40" class="box"/>
+<text x="1130" y="168" class="title">SkillSO</text>
+<text x="1130" y="182" class="body">DamageMultiplier</text>
+
+<path d="M860,150 L880,114" class="inh"/>
+<path d="M1010,150 L900,114" class="inh"/>
+<path d="M1170,150 L920,114" class="inh"/>
+
+<rect x="800" y="230" width="150" height="36" class="box"/>
+<text x="810" y="248" class="title">Skill (abstract)</text>
+<text x="810" y="261" class="body">ExecuteSkill()</text>
+
+<rect x="800" y="290" width="150" height="36" class="box"/>
+<text x="810" y="308" class="title">HolyLightSkill</text>
+<text x="810" y="321" class="body">damage, stunRounds</text>
+<path d="M860,290 L860,266" class="inh"/>
+
+<rect x="980" y="230" width="150" height="36" class="box"/>
+<text x="990" y="248" class="title">StatusEffect (abstr.)</text>
+<text x="990" y="261" class="body">ApplyEffect()</text>
+
+<rect x="980" y="290" width="150" height="36" class="box"/>
+<text x="990" y="308" class="title">StunSE</text>
+<text x="990" y="321" class="body">stunRounds</text>
+<path d="M1040,290 L1040,266" class="inh"/>
+
+<rect x="1160" y="230" width="180" height="56" class="box"/>
+<text x="1170" y="248" class="title">StatusEffectHandler</text>
+<text x="1170" y="262" class="body">ActiveEffects: List</text>
+<text x="1170" y="276" class="body">+ TickEffects()</text>
+
+<rect x="1160" y="310" width="180" height="48" class="box"/>
+<text x="1170" y="328" class="title">SkillSlot</text>
+<text x="1170" y="342" class="body">equippedSkills: List&lt;SkillSO&gt;</text>
+</g>
+
+<g>
+<rect x="20" y="500" width="230" height="80" class="box"/>
+<text x="30" y="518" class="title">CombatManager</text>
+<text x="30" y="532" class="body">State, Round</text>
+<text x="30" y="546" class="body">+ StartCombat()</text>
+<text x="30" y="560" class="body">→ playerTeam, enemyTeam</text>
+
+<rect x="280" y="500" width="230" height="64" class="box"/>
+<text x="290" y="518" class="title">TargetManager</text>
+<text x="290" y="532" class="body">+ GetValidTargets(type,Character)</text>
+<text x="290" y="546" class="body">+ GetBestTarget(strategy)</text>
+
+<rect x="20" y="610" width="230" height="64" class="box"/>
+<text x="30" y="628" class="title">Team (abstract)</text>
+<text x="30" y="642" class="body">members: List&lt;Character&gt;</text>
+<text x="30" y="656" class="body">+ AddMember()/RemoveMember()</text>
+
+<rect x="20" y="700" width="100" height="40" class="box"/>
+<text x="30" y="718" class="title">PlayerTeam</text>
+<text x="30" y="732" class="body">Select()</text>
+<rect x="150" y="700" width="100" height="40" class="box"/>
+<text x="160" y="718" class="title">AITeam</text>
+
+<path d="M70,700 L100,674" class="inh"/>
+<path d="M180,700 L160,674" class="inh"/>
+<path d="M250,540 L20,540" class="assoc"/>
+<path d="M130,610 L130,580" class="assoc" />
+</g>
+
+<g>
+<rect x="560" y="500" width="230" height="50" class="box"/>
+<text x="570" y="518" class="title">CharacterController (abstr.)</text>
+<text x="570" y="532" class="body">+ ConfirmAction(...)</text>
+
+<rect x="560" y="580" width="230" height="120" class="box"/>
+<text x="570" y="598" class="title">PlayerController</text>
+<text x="570" y="612" class="body">playerCamera, targetManager</text>
+<text x="570" y="626" class="body">→ tokenMerger, ITokenInputProvider</text>
+<text x="570" y="640" class="body">+ BeginTargeting()/EndTurn()</text>
+<text x="570" y="654" class="body">+ TryBeginDrag()/EndDrag()</text>
+
+<rect x="820" y="580" width="200" height="56" class="box"/>
+<text x="830" y="598" class="title">AIController</text>
+<text x="830" y="612" class="body">strategy: AITargetStrategy</text>
+<text x="830" y="626" class="body">+ PerformAction()</text>
+
+<path d="M670,580 L670,550" class="inh"/>
+<path d="M900,580 L700,550" class="inh"/>
+
+<rect x="820" y="660" width="200" height="40" class="box"/>
+<text x="830" y="678" class="itf">«interface»</text>
+<text x="830" y="692" class="itf">ITokenInputProvider</text>
+
+<rect x="820" y="720" width="95" height="36" class="box"/>
+<text x="828" y="738" class="title" font-size="11">MouseInputProvider</text>
+<rect x="925" y="720" width="95" height="36" class="box"/>
+<text x="933" y="738" class="title" font-size="11">TouchInputProvider</text>
+<path d="M867,720 L860,696" class="inh"/>
+<path d="M972,720 L880,696" class="inh"/>
+<path d="M790,650 L820,680" class="assoc"/>
+</g>
+
+<g>
+<rect x="1090" y="500" width="240" height="76" class="box"/>
+<text x="1100" y="518" class="title">GridManager «singleton»</text>
+<text x="1100" y="532" class="body">coordMap, idMap</text>
+<text x="1100" y="546" class="body">+ GetTile()/IsFree()</text>
+<text x="1100" y="560" class="body">+ GetOrthogonalNeighbours()</text>
+
+<rect x="1090" y="600" width="240" height="60" class="box"/>
+<text x="1100" y="618" class="title">GridSquare</text>
+<text x="1100" y="632" class="body">tileX, tileY, State, ItemType</text>
+<text x="1100" y="646" class="body">+ PlaceItem()/ClearItem()</text>
+
+<path d="M1210,600 L1210,576" class="assoc"/>
+</g>
+
+<g>
+<rect x="1380" y="50" width="290" height="76" class="box"/>
+<text x="1390" y="68" class="title">GameEventSingleton</text>
+<text x="1390" y="82" class="body">OnPlayerDied, OnHealthChanged,</text>
+<text x="1390" y="96" class="body">OnPlayerTurnStart/End,</text>
+<text x="1390" y="110" class="body">OnCharacterAttacked...</text>
+
+<rect x="1380" y="150" width="135" height="36" class="box"/>
+<text x="1388" y="168" class="title" font-size="11">GameEvent</text>
+<rect x="1525" y="150" width="145" height="36" class="box"/>
+<text x="1533" y="168" class="title" font-size="11">TypedGameEvent&lt;T&gt;</text>
+<path d="M1450,150 L1450,126" class="assoc"/>
+<path d="M1597,150 L1500,126" class="assoc"/>
+</g>
+
+<g>
+<rect x="1380" y="230" width="230" height="56" class="box"/>
+<text x="1390" y="248" class="title">GameManager «singleton»</text>
+<text x="1390" y="262" class="body">→ combatManager</text>
+<path d="M1380,260 L320,560" class="assoc" stroke-dasharray="3,2"/>
+</g>
+
+<g>
+<rect x="20" y="800" width="220" height="78" class="box"/>
+<text x="30" y="818" class="title">TeamBoardUI</text>
+<text x="30" y="832" class="body">rosterTeam, combatTeam</text>
+<text x="30" y="846" class="body">→ Dictionary&lt;Character,</text>
+<text x="30" y="860" class="body">  CharacterCardUI&gt;</text>
+
+<rect x="280" y="800" width="220" height="78" class="box"/>
+<text x="290" y="818" class="title">CharacterCardUI</text>
+<text x="290" y="832" class="body">→ CharacterStats</text>
+<text x="290" y="846" class="body">→ StatusEffectHandler</text>
+<text x="290" y="860" class="body">+ Bind(Character)</text>
+
+<rect x="540" y="800" width="200" height="54" class="box"/>
+<text x="550" y="818" class="title">HealthBar</text>
+<text x="550" y="832" class="body">→ CharacterStats</text>
+<text x="550" y="846" class="body">+ UpdateUI(hp,max)</text>
+
+<rect x="780" y="800" width="200" height="54" class="box"/>
+<text x="790" y="818" class="title">AttackButton</text>
+<text x="790" y="832" class="body">→ PlayerController</text>
+<text x="790" y="846" class="body">→ CharacterActionSO</text>
+
+<rect x="280" y="900" width="220" height="40" class="box"/>
+<text x="290" y="918" class="title">StatusEffectIconUI</text>
+<text x="290" y="932" class="body">+ Set(ActiveStatusEffect)</text>
+
+<path d="M280,838 L240,838" class="assoc"/>
+<path d="M390,900 L390,878" class="assoc"/>
+<path d="M640,800 L450,330" class="assoc" stroke-dasharray="3,2"/>
+</g>
+
+<text x="20" y="1010" class="sec" font-size="12">Notes:</text>
+<text x="20" y="1030" class="body" font-size="11">• Character implements ITarget; PlayerController drives PlayerCharacter via PlayerTeam, AIController drives AICharacter via CombatManager.</text>
+<text x="20" y="1048" class="body" font-size="11">• CombatManager orchestrates Team/TargetManager; CharacterActionSO/SkillSO are ScriptableObject-based data-driven actions executed on ITarget lists.</text>
+<text x="20" y="1066" class="body" font-size="11">• Token/Slot/Merger system (CharacterToken, CharacterSlot, CharacterTokenMerger) implements the new "merge combat" mechanic replacing the old Dice system.</text>
+<text x="20" y="1084" class="body" font-size="11">• GameEventSingleton provides a decoupled pub/sub layer (GameEvent / TypedGameEvent&lt;T&gt;) used across UI, Controllers, and Combat.</text>
+</svg>

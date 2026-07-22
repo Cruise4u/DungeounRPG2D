@@ -65,4 +65,6 @@ public class TargetManager : MonoBehaviour
             _                            => targets[Random.Range(0, targets.Count)]
         };
     }
+    
 }
+

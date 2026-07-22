@@ -3,83 +3,145 @@ using UnityEngine;
 
 public class PlayerController : CharacterController
 {
+    // ─── Combat targeting ─────────────────────────────────────────────────────
+
+    private Camera playerCamera;
+    
     [SerializeField] private TargetManager targetManager;
     [SerializeField] private LayerMask characterLayerMask = ~0;
+    [SerializeField] private PlayerTeam _activeTeam;
+    [SerializeField] private PlayerCharacter _activeCharacter;
 
-    [SerializeField]
-    private PlayerTeam _activeTeam;
-    [SerializeField]
-    private PlayerCharacter _activeCharacter;
     private bool _isTargeting;
-   
-    [SerializeField]
     private CharacterActionSO _pendingAction;
     private List<ITarget> _currentValidTargets = new();
-    
-    private void OnEnable()
-    {
-        GameEventSingleton.OnPlayerTurnStart.Subscribe(OnTeamTurnStart);
-        GameEventSingleton.OnPlayerTurnEnd.Subscribe(OnTeamTurnEnd);
-        GameEventSingleton.OnPlayerCharacterTurnStart.Subscribe(OnCharacterTurnStart);
-        GameEventSingleton.OnPlayerCharacterTurnEnd.Subscribe(OnCharacterTurnEnd);
-    }
-    
+
+    // ─── Token drag & merge ───────────────────────────────────────────────────
+
+    [Header("Token Drag & Merge")]
+    [SerializeField] private TokenMerger tokenMerger;
+    [SerializeField] private LayerMask tokenLayerMask = ~0;
+    [SerializeField] private float snapThreshold = 0.5f;
+
+    private ITokenInputProvider _input;
+    private CharacterToken _draggedToken;
+    private Vector3 _dragOrigin;
+    private CharacterToken _snapCandidate;
+
+    // ─── Lifecycle ────────────────────────────────────────────────────────────
+
     private void Awake()
     {
+        playerCamera = FindFirstObjectByType<Camera>();
         if (targetManager == null)
             targetManager = FindFirstObjectByType<TargetManager>();
-    }
-    
-    private void Update()
-    {
-        if (!Input.GetMouseButtonDown(0)) return;
 
-        HandleTargetClick();
-        // if (_activeTeam != null && _activeCharacter == null)
-        //     HandleCharacterSelection();
+        _input = Application.isMobilePlatform
+            ? (ITokenInputProvider)new TouchInputProvider()
+            : new MouseInputProvider();
     }
-    
+
+    private void OnEnable()
+    {
+
+    }
+
     private void OnDisable()
     {
-        GameEventSingleton.OnPlayerTurnStart.Unsubscribe(OnTeamTurnStart);
-        GameEventSingleton.OnPlayerTurnEnd.Unsubscribe(OnTeamTurnEnd);
-        GameEventSingleton.OnPlayerCharacterTurnStart.Unsubscribe(OnCharacterTurnStart);
-        GameEventSingleton.OnPlayerCharacterTurnEnd.Unsubscribe(OnCharacterTurnEnd);
-    }
-    
-    // ─── Team-level events ────────────────────────────────────────────────────
 
-    private void OnTeamTurnStart(PlayerTeam team)
+    }
+
+    private void Update()
     {
-        _activeTeam = team;
+        if (_input.DragStarted)
+        {
+            if (_isTargeting)
+                HandleTargetClick();
+            else
+                TryBeginDrag();
+        }
+        else if (_input.IsDragging && _draggedToken != null)
+        {
+            UpdateDrag();
+        }
+        else if (_input.DragEnded && _draggedToken != null)
+        {
+            EndDrag();
+        }
     }
 
-    private void OnTeamTurnEnd(PlayerTeam team)
+    // ─── Token drag ───────────────────────────────────────────────────────────
+
+    private void TryBeginDrag()
     {
-        _activeTeam = null;
+        var hit = OverlapAtPointer(tokenLayerMask);
+        if (hit == null) return;
+
+        var token = hit.GetComponent<CharacterToken>();
+        if (token == null) return;
+
+        _draggedToken = token;
+        _dragOrigin   = token.transform.position;
     }
 
-    // ─── Character-level events ───────────────────────────────────────────────
-
-    private void OnCharacterTurnStart(PlayerCharacter character)
+    private void UpdateDrag()
     {
-        _activeCharacter = character;
+        _draggedToken.transform.position = PointerWorldPosition();
+
+        _snapCandidate = FindSnapCandidate();
+        if (_snapCandidate != null)
+            _draggedToken.transform.position = _snapCandidate.transform.position;
     }
 
-    private void OnCharacterTurnEnd(PlayerCharacter character)
+    private void EndDrag()
     {
-        ClearActionState();
-        _activeCharacter = null;
+        if (_snapCandidate != null && tokenMerger != null)
+        {
+            bool merged = tokenMerger.MergeTokens(_draggedToken, _snapCandidate);
+            if (!merged)
+                _draggedToken.transform.position = _dragOrigin;
+        }
+        else
+        {
+            _draggedToken.transform.position = _dragOrigin;
+        }
+
+        _draggedToken  = null;
+        _snapCandidate = null;
     }
 
-    // ─── Public API (called from action buttons) ──────────────────────────────
+    // Returns the nearest same-evolution token within snapThreshold, excluding the dragged token itself.
+    private CharacterToken FindSnapCandidate()
+    {
+        Vector2 pos = _draggedToken.transform.position;
+        var hits = Physics2D.OverlapCircleAll(pos, snapThreshold, tokenLayerMask);
+
+        CharacterToken best = null;
+        float bestDist = float.MaxValue;
+
+        foreach (var hit in hits)
+        {
+            var token = hit.GetComponent<CharacterToken>();
+            if (token == null || token == _draggedToken) continue;
+            if (token.EvolutionType != _draggedToken.EvolutionType) continue;
+
+            float dist = Vector2.Distance(pos, hit.transform.position);
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = token;
+            }
+        }
+
+        return best;
+    }
+
+    // ─── Combat targeting ─────────────────────────────────────────────────────
 
     public void BeginTargeting(CharacterActionSO action)
     {
         if (_activeCharacter == null || action == null) return;
 
-        // Clicking the button counts as selecting this character to act next.
-        // This unblocks PlayerTeam.TakeTurn which is waiting on _selectedCharacter.
         _activeTeam?.SelectCharacter(_activeCharacter);
 
         ClearHighlights(_currentValidTargets);
@@ -102,34 +164,14 @@ public class PlayerController : CharacterController
         ClearActionState();
     }
 
-    /// <summary>
-    /// Ends the player's turn immediately — assign this to Turn_Button via the Inspector.
-    /// Signals the active character to stop and clears all remaining pending characters.
-    /// </summary>
     public void EndTurn()
     {
         ClearActionState();
-        _activeTeam?.EndTurn();
     }
 
-    // Player clicks one of their own pending characters to make them act next.
-    private void HandleCharacterSelection()
-    {
-        var hit = OverlapAtMouse();
-        if (hit == null) return;
-
-        var character = hit.GetComponent<PlayerCharacter>();
-        if (character == null) return;
-
-        _activeTeam.SelectCharacter(character);
-    }
-
-    // Player clicks an enemy (or ally) as the action target.
     private void HandleTargetClick()
     {
-        if (!_isTargeting) return;  // ignore clicks that aren't part of an active targeting session
-
-        var hit = OverlapAtMouse();
+        var hit = OverlapAtPointer(characterLayerMask);
         if (hit == null) return;
 
         ITarget target = hit.GetComponent<ITarget>();
@@ -141,6 +183,18 @@ public class PlayerController : CharacterController
         _isTargeting = false;
         ConfirmAction(_activeCharacter, new List<ITarget> { target }, _pendingAction);
         _pendingAction = null;
+    }
+
+    // ─── Team / character events ──────────────────────────────────────────────
+
+    private void OnTeamTurnStart(PlayerTeam team)     => _activeTeam = team;
+    private void OnTeamTurnEnd(PlayerTeam team)       => _activeTeam = null;
+    private void OnCharacterTurnStart(PlayerCharacter c) => _activeCharacter = c;
+
+    private void OnCharacterTurnEnd(PlayerCharacter c)
+    {
+        ClearActionState();
+        _activeCharacter = null;
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
@@ -159,10 +213,16 @@ public class PlayerController : CharacterController
         _pendingAction = null;
     }
 
-    private Collider2D OverlapAtMouse()
+    private Vector3 PointerWorldPosition()
     {
-        Vector2 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        return Physics2D.OverlapPoint(worldPos, characterLayerMask);
+        Vector3 screen = _input.PointerScreenPosition;
+        screen.z = -Camera.main.transform.position.z;
+        return playerCamera.ScreenToWorldPoint(screen);
+    }
+
+    private Collider2D OverlapAtPointer(LayerMask mask)
+    {
+        return Physics2D.OverlapPoint(PointerWorldPosition(), mask);
     }
 
     private void HighlightTargets(bool on)
@@ -171,17 +231,12 @@ public class PlayerController : CharacterController
             if (t is Character c) c.SetHighlighted(on);
     }
 
-    private void HighlightPending(bool on)
-    {
-        if (_activeTeam == null) return;
-        foreach (var c in _activeTeam.PendingCharacters)
-            c.SetHighlighted(on);
-    }
-
     private void ClearHighlights(List<ITarget> targets)
     {
         foreach (var t in targets)
             if (t is Character c) c.SetHighlighted(false);
         targets.Clear();
     }
+    
+    
 }

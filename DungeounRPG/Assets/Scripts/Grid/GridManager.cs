@@ -68,6 +68,24 @@ namespace DungeonRPG.Grid
         public GridSquare GetTile(Vector2Int coord)       => coordMap.GetValueOrDefault(coord);
         public GridSquare GetTileByID(int id)             => idMap.GetValueOrDefault(id);
 
+        /// <summary>Returns the tile whose placed item is the given GameObject, or null if none.</summary>
+        public GridSquare GetTileWithItem(GameObject item)
+        {
+            foreach (var sq in coordMap.Values)
+                if (sq.ItemObject == item) return sq;
+            return null;
+        }
+
+        /// <summary>Clears whichever tile currently holds the given GameObject, if any. Returns true if a tile was cleared.</summary>
+        public bool ClearTileWithItem(GameObject item)
+        {
+            var tile = GetTileWithItem(item);
+            if (tile == null) return false;
+
+            tile.ClearItem();
+            return true;
+        }
+
         public bool IsInBounds(int x, int y)             => x >= 0 && x < Width && y >= 0 && y < Height;
         public bool IsFree(int x, int y)                  => GetTile(x, y)?.State == CellState.Free;
         public bool IsOccupied(int x, int y)              => GetTile(x, y)?.State == CellState.Occupied;

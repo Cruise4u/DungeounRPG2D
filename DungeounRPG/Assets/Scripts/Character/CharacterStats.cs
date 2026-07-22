@@ -55,4 +55,19 @@ public class CharacterStats : MonoBehaviour
     {
         if (baseStats != null) LoadFromSO(baseStats);
     }
+
+    /// <summary>Absorbs another character's stats into this one (used when two combat-zone characters merge).</summary>
+    public void MergeFrom(CharacterStats other)
+    {
+        if (other == null) return;
+
+        int newMaxHp = MaxHp + other.MaxHp;
+        CurrentHp = Mathf.Min(newMaxHp, CurrentHp + other.CurrentHp);
+        MaxHp = newMaxHp;
+        AttackPower += other.AttackPower;
+        Armor += other.Armor;
+        Speed += other.Speed;
+
+        OnHpChanged?.Invoke(CurrentHp, MaxHp);
+    }
 }

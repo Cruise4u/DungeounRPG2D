@@ -6,7 +6,6 @@ public class PlayerCharacter : Character
     public override IEnumerator TakeTurn(CombatManager combat)
     {
         _turnEnded = false;
-        GameEventSingleton.OnPlayerCharacterTurnStart.Raise(this);
 
         for (int i = 0; i < ActionsPerTurn; i++)
         {
@@ -20,7 +19,6 @@ public class PlayerCharacter : Character
             ExecutePendingAction();
         }
 
-        GameEventSingleton.OnPlayerCharacterTurnEnd.Raise(this);
     }
 
     /// <summary>
