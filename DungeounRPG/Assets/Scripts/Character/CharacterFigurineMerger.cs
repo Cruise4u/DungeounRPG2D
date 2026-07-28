@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using DungeonRPG.Grid;
 using UnityEngine;
 
-public class TokenMerger : MonoBehaviour
+public class CharacterFigurineMerger : MonoBehaviour
 {
     [SerializeField] private Team team;
     [SerializeField] private CharacterSpawner characterSpawner;
@@ -19,8 +19,8 @@ public class TokenMerger : MonoBehaviour
 
     private CharacterSlot[] _slots;
 
-    // token → the combat-zone Character it currently owns (only set once a token reaches Super+)
-    private readonly Dictionary<CharacterToken, Character> _combatCharacters = new();
+    // figurine → the combat-zone Character it currently owns (only set once a figurine reaches Super+)
+    private readonly Dictionary<CharacterFigurine, Character> _combatCharacters = new();
 
     private void Awake()
     {
@@ -45,42 +45,42 @@ public class TokenMerger : MonoBehaviour
     };
 
     /// <summary>
-    /// Merges tokenFrom into tokenTo. tokenFrom is destroyed and its slot vacated.
-    /// tokenTo advances one evolution tier and the merged character is spawned at its slot.
-    /// Returns false if tokens have different EvolutionTypeID or tokenTo is already Ultra.
+    /// Merges figurineFrom into figurineTo. figurineFrom is destroyed and its slot vacated.
+    /// figurineTo advances one evolution tier and the merged character is spawned at its slot.
+    /// Returns false if tokens have different EvolutionTypeID or figurineTo is already Ultra.
     /// </summary>
-    public bool MergeTokens(CharacterToken tokenFrom, CharacterToken tokenTo)
+    public bool MergeTokens(CharacterFigurine figurineFrom, CharacterFigurine figurineTo)
     {
-        if (tokenFrom.EvolutionType != tokenTo.EvolutionType)
+        if (figurineFrom.EvolutionType != figurineTo.EvolutionType)
         {
-            Debug.LogWarning("[TokenMerger] Cannot merge tokens with different EvolutionTypeID.");
+            Debug.LogWarning("[CharacterFigurineMerger] Cannot merge tokens with different EvolutionTypeID.");
             return false;
         }
 
-        if (tokenTo.EvolutionType == EEvolutionTypeID.Ultra)
+        if (figurineTo.EvolutionType == EEvolutionTypeID.Ultra)
         {
-            Debug.LogWarning("[TokenMerger] Token is already at max evolution (Ultra).");
+            Debug.LogWarning("[CharacterFigurineMerger] Token is already at max evolution (Ultra).");
             return false;
         }
 
-        EEvolutionTypeID next = NextEvolution(tokenTo.EvolutionType);
-        tokenTo.SetEvolution(next, ColorForEvolution(next));
+        EEvolutionTypeID next = NextEvolution(figurineTo.EvolutionType);
+        figurineTo.SetEvolution(next, ColorForEvolution(next));
 
-        // var characterFrom = _combatCharacters[tokenFrom];
-        _combatCharacters.TryGetValue(tokenFrom, out var charFrom);
-        _combatCharacters.TryGetValue(tokenTo, out var charTo);
+        // var characterFrom = _combatCharacters[figurineFrom];
+        _combatCharacters.TryGetValue(figurineFrom, out var charFrom);
+        _combatCharacters.TryGetValue(figurineTo, out var charTo);
         bool bothInCombat = charFrom != null && charTo != null;
         
-        tokenFrom.CurrentSlot?.Vacate();
-        GridManager.Instance.ClearTileWithItem(tokenFrom.gameObject);
-        _combatCharacters.Remove(tokenFrom);
-        tokenFrom.ResetToken();
-        Destroy(tokenFrom.gameObject);
+        figurineFrom.CurrentSlot?.Vacate();
+        GridManager.Instance.ClearTileWithItem(figurineFrom.gameObject);
+        _combatCharacters.Remove(figurineFrom);
+        figurineFrom.ResetToken();
+        Destroy(figurineFrom.gameObject);
 
         if (bothInCombat)
             MergeCombatCharacters(charFrom, charTo, next);
         else if (next == EEvolutionTypeID.Super)
-            SpawnInCombatZone(tokenTo, next);
+            SpawnInCombatZone(figurineTo, next);
 
         return true;
     }
@@ -101,9 +101,9 @@ public class TokenMerger : MonoBehaviour
         return null;
     }
 
-    private void SpawnInCombatZone(CharacterToken token, EEvolutionTypeID evolution)
+    private void SpawnInCombatZone(CharacterFigurine figurine, EEvolutionTypeID evolution)
     {
-        if (token.CharacterPrefab == null) return;
+        if (figurine.CharacterPrefab == null) return;
 
         CharacterSlot freeSlot = null;
         foreach (var slot in combatSlots)
@@ -117,19 +117,19 @@ public class TokenMerger : MonoBehaviour
 
         if (freeSlot == null)
         {
-            Debug.LogWarning("[TokenMerger] No free combat slot available to spawn character.");
+            Debug.LogWarning("[CharacterFigurineMerger] No free combat slot available to spawn character.");
             return;
         }
 
         var go = characterSpawner != null
-            ? characterSpawner.Spawn((ECharacterPoolID)(int)token.poolId, freeSlot.transform.position)
-            : Instantiate(token.CharacterPrefab, freeSlot.transform.position, Quaternion.identity);
+            ? characterSpawner.Spawn((ECharacterPoolID)(int)figurine.poolId, freeSlot.transform.position)
+            : Instantiate(figurine.CharacterPrefab, freeSlot.transform.position, Quaternion.identity);
         if (go.TryGetComponent<Character>(out var character))
         {
             character.SetEvolution(evolution, ColorForEvolution(evolution));
             team.AddMember(character);
             freeSlot.OccupyCharacter(character);
-            _combatCharacters[token] = character;
+            _combatCharacters[figurine] = character;
         }
     }
 }

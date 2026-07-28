@@ -31,7 +31,6 @@ public class CharacterStats : MonoBehaviour
         AttackPower = so.attackPower;
         Armor = so.armor;
         Speed = so.speed;
-        OnHpChanged?.Invoke(CurrentHp, MaxHp);
     }
 
     public void TakeDamage(int rawDamage)

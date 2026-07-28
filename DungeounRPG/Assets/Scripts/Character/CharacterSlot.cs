@@ -3,20 +3,20 @@ using UnityEngine;
 public class CharacterSlot : MonoBehaviour
 {
     public int slotNumber;
-    public CharacterToken OccupantToken { get; private set; }
+    public CharacterFigurine OccupantFigurine { get; private set; }
     public Character OccupantCharacter { get; private set; }
 
-    public bool IsOccupied => OccupantToken != null || OccupantCharacter != null;
+    public bool IsOccupied => OccupantFigurine != null || OccupantCharacter != null;
 
-    public void Occupy(CharacterToken token)
+    public void Occupy(CharacterFigurine figurine)
     {
-        OccupantToken = token;
-        token.SetSlot(this);
+        OccupantFigurine = figurine;
+        figurine.SetSlot(this);
     }
 
     public void Vacate()
     {
-        OccupantToken = null;
+        OccupantFigurine = null;
     }
 
     public void OccupyCharacter(Character character)

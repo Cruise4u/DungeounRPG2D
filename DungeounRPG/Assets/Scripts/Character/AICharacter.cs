@@ -10,20 +10,5 @@ public class AICharacter : Character
     protected override void Awake()
     {
         base.Awake();
-        _controller = FindFirstObjectByType<AIController>();
-        if (_controller == null)
-            Debug.LogError($"[AICharacter] Missing AIController on {gameObject.name}.", this);
-    }
-
-    public override IEnumerator TakeTurn(CombatManager combat)
-    {
-        ResetActionState();
-
-        if (_controller == null || !_controller.PerformAction(combat, this))
-            yield break;
-
-        ExecutePendingAction();
-
-        yield return new WaitForSeconds(actionDelay);
     }
 }

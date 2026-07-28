@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public interface ITokenInputProvider
+public interface IInputProvider
 {
     bool DragStarted { get; }
     bool IsDragging  { get; }

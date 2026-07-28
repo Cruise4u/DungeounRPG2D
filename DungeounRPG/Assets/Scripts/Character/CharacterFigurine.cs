@@ -8,9 +8,9 @@ public enum EEvolutionTypeID
     Ultra
 }
 
-public class CharacterToken : MonoBehaviour
+public class CharacterFigurine : MonoBehaviour
 {
-    [Tooltip("Must match the poolId configured for this token's prefab.")]
+    [Tooltip("Must match the poolId configured for this figurine's prefab.")]
     public ETokenPoolID poolId;
 
     [SerializeField] private GameObject characterPrefab;

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class TouchInputProvider : ITokenInputProvider
+public class TouchInputProvider : IInputProvider
 {
     public bool DragStarted =>
         Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began;

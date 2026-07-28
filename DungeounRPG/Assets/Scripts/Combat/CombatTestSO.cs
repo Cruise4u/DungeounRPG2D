@@ -34,19 +34,7 @@ public class CombatTestSO : ScriptableObject
 
         Debug.Log($"[CombatTest] {action} {amount} → {target.TargetName}");
     }
-
-    public void EndPlayerTurn()
-    {
-        var controller = Object.FindFirstObjectByType<PlayerController>();
-        if (controller == null)
-        {
-            Debug.LogWarning("[CombatTest] No PlayerController found in scene.");
-            return;
-        }
-
-        controller.EndTurn();
-        Debug.Log("[CombatTest] Player turn ended.");
-    }
+    
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 

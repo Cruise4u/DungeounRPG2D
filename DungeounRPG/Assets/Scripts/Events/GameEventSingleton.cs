@@ -6,7 +6,6 @@ public static class GameEventSingleton
     public static readonly GameEvent OnEnemyDied       = new("OnEnemyDied");
     public static readonly GameEvent OnLevelComplete   = new("OnLevelComplete");
     public static readonly TypedGameEvent<int> OnHealthChanged = new("OnHealthChanged");
-    public static readonly TypedGameEvent<CharacterController> OnCharacterActionSelected = new("OnCharacterActionSelected");
 
     // ── Combat flow ───────────────────────────────────────────────────────
     public static readonly TypedGameEvent<int> OnRoundStart = new("OnRoundStart");

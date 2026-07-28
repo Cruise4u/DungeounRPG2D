@@ -23,7 +23,7 @@ public class Encounter : MonoBehaviour
 
     [SerializeField] private List<EncounterEnemyEntry> enemies = new();
     [SerializeField] private CharacterSlot[] enemySlots;
-    [SerializeField] private AITeam enemyTeam;
+    [SerializeField] private Team enemyTeam;
     [SerializeField] private CharacterSpawner enemySpawner;
     [SerializeField] private AIController enemyController;
 

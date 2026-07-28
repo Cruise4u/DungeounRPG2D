@@ -7,7 +7,7 @@ using UnityEngine;
 //  ├─ [Order -100] GameManager.Awake       — singleton guard, DontDestroyOnLoad
 //  ├─ Character.Awake                      — grabs CharacterStats (same GO)
 //  ├─ AICharacter.Awake                    — grabs AIController   (same GO)
-//  └─ TargetManager.Awake                  — resolves CombatManager ref
+//  └─ targetManager.Awake                  — resolves CombatManager ref
 //
 //  ON_ENABLE  (all OnEnable calls run after all Awake, before any Start)
 //  │

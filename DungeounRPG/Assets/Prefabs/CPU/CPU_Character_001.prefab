@@ -128,7 +128,8 @@ GameObject:
   - component: {fileID: 8789926981529552827}
   - component: {fileID: 6760399061997301412}
   - component: {fileID: 8043064305422314248}
-  - component: {fileID: 9063816550178155186}
+  - component: {fileID: 1146913797707259635}
+  - component: {fileID: 6076308848076807844}
   m_Layer: 0
   m_Name: CPU_Character_001
   m_TagString: Untagged
@@ -283,7 +284,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
   baseStats: {fileID: 11400000, guid: 9988ffd498d018148bf7266ca3d9790a, type: 2}
---- !u!114 &9063816550178155186
+--- !u!114 &1146913797707259635
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -292,10 +293,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 6470473583921570058}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6938eadc338169b4fb369ed0d29eec80, type: 3}
+  m_Script: {fileID: 11500000, guid: 536d63bbff04cc243a6ec203ad5bfbe4, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterPrefabConfig
-  playerCamera: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::UnitStateMachine
+  myTeam: {fileID: 0}
+  isStateMachineActive: 0
+--- !u!114 &6076308848076807844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6470473583921570058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 833d530811008a1438bbd84ed34e57e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitAttackConfig
+  attackAction: {fileID: 11400000, guid: 3b398f44b91851f49ae62e97b0d87470, type: 2}
+  attackCooldown: 1.5
 --- !u!1 &7834690210092130358
 GameObject:
   m_ObjectHideFlags: 0
