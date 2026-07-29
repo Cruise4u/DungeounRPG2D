@@ -55,10 +55,6 @@ public class CombatTestSOEditor : Editor
 
         GUI.backgroundColor = Color.white;
         EditorGUILayout.Space(4);
-
-        GUI.backgroundColor = new Color(0.6f, 0.8f, 1f);
-        if (GUILayout.Button("End Player Turn", GUILayout.Height(28)))
-            so.EndPlayerTurn();
-        GUI.backgroundColor = Color.white;
+        
     }
 }

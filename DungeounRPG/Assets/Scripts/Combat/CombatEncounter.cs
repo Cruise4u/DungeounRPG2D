@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>One enemy type and how many of it this encounter spawns.</summary>
@@ -17,19 +18,32 @@ public class EncounterEnemyEntry
 /// they're placed directly into the combat zone fully formed, and the player only
 /// adjusts/merges their own side around them.
 /// </summary>
-public class Encounter : MonoBehaviour
+public class CombatEncounter : MonoBehaviour
 {
     private const int MaxInitialEnemies = 5;
 
     [SerializeField] private List<EncounterEnemyEntry> enemies = new();
     [SerializeField] private CharacterSlot[] enemySlots;
-    [SerializeField] private AITeam enemyTeam;
+    [SerializeField] private Team enemyTeam;
     [SerializeField] private CharacterSpawner enemySpawner;
-    [SerializeField] private AIController enemyController;
 
     private void Start()
     {
+        SetupEncounter();
         SpawnEncounter();
+    }
+
+    private CharacterSlot[] GetCPUSlots()
+    {
+        var allEnemySlots = FindObjectsByType<CharacterSlot>(FindObjectsSortMode.None).Where(slot => slot.slotID == 1).ToArray();
+        return allEnemySlots;
+    }
+    
+    public void SetupEncounter()
+    {
+        enemySlots = GetCPUSlots();
+        enemySpawner = FindFirstObjectByType<CharacterSpawner>();
+        
     }
 
     /// <summary>
@@ -48,13 +62,13 @@ public class Encounter : MonoBehaviour
             {
                 if (spawned >= MaxInitialEnemies)
                 {
-                    Debug.LogWarning($"[Encounter] Reached the {MaxInitialEnemies}-enemy cap — remaining enemies not spawned.");
+                    Debug.LogWarning($"[CombatEncounter] Reached the {MaxInitialEnemies}-enemy cap — remaining enemies not spawned.");
                     return;
                 }
 
                 if (slotIndex >= enemySlots.Length)
                 {
-                    Debug.LogWarning("[Encounter] Ran out of enemy slots — remaining enemies not spawned.");
+                    Debug.LogWarning("[CombatEncounter] Ran out of enemy slots — remaining enemies not spawned.");
                     return;
                 }
 

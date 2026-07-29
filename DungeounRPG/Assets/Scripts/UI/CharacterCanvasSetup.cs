@@ -9,10 +9,12 @@ using UnityEngine;
 [RequireComponent(typeof(Canvas))]
 public class CharacterCanvasSetup : MonoBehaviour, IPoolSetup
 {
+    public CharacterPrefabConfig characterPrefabConfig;
     private Canvas _canvas;
 
     private void Awake()
     {
+        characterPrefabConfig =  GetComponentInParent<CharacterPrefabConfig>();
         AssignCamera();
     }
 
@@ -29,13 +31,12 @@ public class CharacterCanvasSetup : MonoBehaviour, IPoolSetup
         if (_canvas.renderMode != RenderMode.WorldSpace) return;
         if (_canvas.worldCamera != null) return;
 
-        var config = GetComponentInParent<CharacterPrefabConfig>();
-        if (config == null)
+        if (characterPrefabConfig == null)
         {
             Debug.LogError($"[CharacterCanvasSetup] No CharacterPrefabConfig found in parent hierarchy of {gameObject.name}.", this);
             return;
         }
 
-        _canvas.worldCamera = config.PlayerCamera;
+        _canvas.worldCamera = characterPrefabConfig.CharacterCamera;
     }
 }

@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: AI_Character_Stats_001
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStatsSO
   maxHp: 50
-  attackPower: 10
+  attackPower: 15
   armor: 5
   speed: 5

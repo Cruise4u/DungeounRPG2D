@@ -34,8 +34,6 @@ public class HolyLightSkill : Skill
             if (target.IsAlive)
             {
                 target.TakeDamage(damageValue);
-                target.GetSE(Stun);
-                
             }
         }
     }

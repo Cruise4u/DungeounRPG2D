@@ -10,8 +10,25 @@ public class DamageActionSO : CharacterActionSO
     public override void Execute(Character user, List<ITarget> targets)
     {
         int damage = Mathf.RoundToInt(user.Stats.AttackPower * DamageMultiplier);
+
         foreach (var t in targets.Where(t => t != null && t.IsAlive))
+        {
+            // Armor is applied inside TakeDamage, so the only honest way to report what actually
+            // landed is to measure the health that disappeared — the raw roll is not the same number.
+            var stats = (t as Character)?.Stats;
+            int hpBefore = stats != null ? stats.CurrentHp : 0;
+
             t.TakeDamage(damage);
-        Debug.Log("Deal Damage! Pimba!");
+
+            if (stats == null)
+            {
+                Debug.Log($"{user.TargetName} hit {t.TargetName} for {damage} raw.");
+                continue;
+            }
+
+            int applied = hpBefore - stats.CurrentHp;
+            string killed = t.IsAlive ? "" : " — down!";
+            Debug.Log($"{user.TargetName} hit {t.TargetName} for {applied} (raw {damage}) — {stats.CurrentHp}/{stats.MaxHp} HP left{killed}");
+        }
     }
 }

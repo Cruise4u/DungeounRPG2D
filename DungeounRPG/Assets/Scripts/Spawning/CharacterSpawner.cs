@@ -8,9 +8,9 @@ public class CharacterPoolEntry : PoolEntry
 }
 
 /// <summary>
-/// Pools the evolved CharacterPrefab for each of a TokenSpawner's token pools, matched by
+/// Pools the evolved CharacterPrefab for each of a TokenSpawner's figurine pools, matched by
 /// enum ordinal (ETokenPoolID.TokenA -> ECharacterPoolID.CharacterA, etc.). Each character
-/// pool is sized at half its matching token pool's initial size.
+/// pool is sized at half its matching figurine pool's initial size.
 /// </summary>
 public class CharacterSpawner : PoolSpawner<CharacterPoolEntry>
 {
@@ -32,7 +32,7 @@ public class CharacterSpawner : PoolSpawner<CharacterPoolEntry>
     {
         foreach (var tokenEntry in tokenSpawner.Pools)
         {
-            var characterPrefab = tokenEntry.prefab?.GetComponent<CharacterToken>()?.CharacterPrefab;
+            var characterPrefab = tokenEntry.prefab?.GetComponent<CharacterFigurine>()?.CharacterPrefab;
             if (characterPrefab == null) continue;
 
             pools.Add(new CharacterPoolEntry

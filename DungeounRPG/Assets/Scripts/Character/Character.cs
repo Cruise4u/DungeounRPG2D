@@ -5,86 +5,53 @@ using UnityEngine;
 
 public abstract class Character : MonoBehaviour, ITarget
 {
+    private SpriteRenderer spriteRenderer;
+    
+    public Team team { get; private set; }
     public CharacterStats Stats { get; private set; }
+    
     public EEvolutionTypeID EvolutionType { get; private set; } = EEvolutionTypeID.Basic;
 
-    private SpriteRenderer _spriteRenderer;
+    /// <summary>
+    /// The team this character currently belongs to — the single source of truth for
+    /// allegiance. Assigned by Team.AddMember/RemoveMember; read via TeamRegistry.
+    /// </summary>
+    public Team Team { get; private set; }
 
-    // Set by DiceManager after RollAll so skills can read the roll result during Execute.
-
+    /// <summary>Called by Team when this character joins or leaves a roster. Pass null to clear.</summary>
+    public void SetTeam(Team team) => Team = team;
+    
     // ITarget
     public string TargetName => gameObject.name;
-    public bool IsAlive => Stats.CurrentHp >= 1;
+    public bool IsAlive => !Stats.IsDead;
+    
     public void TakeDamage(int damage) => Stats.TakeDamage(damage);
     public void Heal(int amount)       => Stats.Heal(amount);
-    public void GetSE(StatusEffect effect)
+    
+    protected virtual void Awake()
     {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        Stats = GetComponent<CharacterStats>();
+    }
+    
+    public void TakeStatusEffect(StatusEffect effect)
+    {
+        //Get's the statuseffectshandler of this character
+        //Applies status effect into it
         throw new System.NotImplementedException();
     }
 
-    [SerializeField] private CombatSettingsSO combatSettings;
-
-    /// <summary>How many actions this character may take per round (driven by the assigned SO).</summary>
-    public int ActionsPerTurn => combatSettings != null ? combatSettings.actionsPerTurn : 1;
-
-    // Shared action state — set by ConfirmAction, consumed by TakeTurn.
-    protected List<ITarget> PendingTargets;
-    protected CharacterActionSO PendingAction;
-    protected bool ActionConfirmed;
-
-    /// <summary>Set to true to break out of the action loop early (End Turn).</summary>
-    protected bool _turnEnded;
-
-    protected virtual void Awake()
-    {
-        Stats = GetComponent<CharacterStats>();
-        if (Stats == null)
-            Debug.LogError($"[Character] Missing CharacterStats on {gameObject.name}.", this);
-
-        _spriteRenderer = GetComponent<SpriteRenderer>();
-    }
-
-    /// <summary>Mirrors CharacterToken.SetEvolution — tints the sprite to reflect the current evolution tier.</summary>
+    /// <summary>Mirrors CharacterFigurine.SetEvolution — tints the sprite to reflect the current evolution tier.</summary>
     public void SetEvolution(EEvolutionTypeID evolution, Color color)
     {
         EvolutionType = evolution;
-        if (_spriteRenderer != null)
-            _spriteRenderer.color = color;
+        if (spriteRenderer != null)
+            spriteRenderer.color = color;
     }
-
-    // Single entry point called by CombatManager for any characterRequisitor type.
-    public void ConfirmAction(List<ITarget> targets, CharacterActionSO action)
-    {
-        if (ActionConfirmed) return;
-        PendingTargets  = targets;
-        PendingAction   = action;
-        ActionConfirmed = true;
-        // Do NOT execute here — PlayerCharacter.TakeTurn calls ExecutePendingAction()
-        // after the WaitUntil, which is the single authoritative execution point.
-    }
-
-    // Executes the stored action against living targets. Call after ActionConfirmed.
-    protected void ExecutePendingAction()
-    {
-        var valid = PendingTargets?.Where(t => t != null && t.IsAlive).ToList()
-                    ?? new List<ITarget>();
-        PendingAction?.Execute(this, valid);
-    }
-
-    protected void ResetActionState()
-    {
-        PendingTargets  = null;
-        PendingAction   = null;
-        ActionConfirmed = false;
-    }
-
-    public abstract IEnumerator TakeTurn(CombatManager combat);
-
+    
     public virtual void SetHighlighted(bool highlighted)
     {
-        var sr = GetComponent<SpriteRenderer>();
-        if (sr != null)
-            sr.color = highlighted ? Color.yellow : Color.white;
+        if (spriteRenderer != null)
+            spriteRenderer.color = highlighted ? Color.yellow : Color.white;
     }
-
 }

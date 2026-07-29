@@ -6,12 +6,9 @@ using UnityEngine;
 //  │
 //  ├─ [Order -100] GameManager.Awake       — singleton guard, DontDestroyOnLoad
 //  ├─ Character.Awake                      — grabs CharacterStats (same GO)
-//  ├─ AICharacter.Awake                    — grabs AIController   (same GO)
-//  └─ TargetManager.Awake                  — resolves CombatManager ref
-//
-//  ON_ENABLE  (all OnEnable calls run after all Awake, before any Start)
-//  │
-//  └─ PlayerController.OnEnable            — subscribes to GameEventSingleton events
+//  ├─ AICharacter.Awake                    — base Character.Awake only; AI has no controller
+//  ├─ InputController.Awake                — resolves camera, picks mouse/touch input provider
+//  └─ targetManager.Awake                  — resolves CombatManager ref
 //
 //  START  (all Start calls run last — all listeners are registered by here)
 //  │
