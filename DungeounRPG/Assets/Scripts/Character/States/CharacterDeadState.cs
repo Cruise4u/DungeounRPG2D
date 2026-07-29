@@ -18,7 +18,12 @@ public class CharacterDeadState : ICharacterState
 
     public void Enter()
     {
-        
+        Debug.Log($"{_machine.gameObject.name} is out of the fight.", _machine);
+
+        // Targeting already skips it — every query filters on IsAlive — so this is only about
+        // taking it off the board. Deactivated rather than destroyed so the team roster, pooling
+        // and any UI card holding a reference all stay valid.
+        _machine.gameObject.SetActive(false);
     }
 
     public void Tick(float deltaTime) { }

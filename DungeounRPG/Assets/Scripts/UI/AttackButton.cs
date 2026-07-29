@@ -2,12 +2,12 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Attach to any action button. Wire playerController and action in the Inspector.
+// Attach to any action button. Wire inputController and action in the Inspector.
 [RequireComponent(typeof(Button))]
 public class AttackButton : MonoBehaviour
 {
     public Character characterRequisitor;
-    [SerializeField] private PlayerController playerController;
+    [SerializeField] private InputController inputController;
     [SerializeField] private CharacterActionSO action;
 
     public void OnEnable()

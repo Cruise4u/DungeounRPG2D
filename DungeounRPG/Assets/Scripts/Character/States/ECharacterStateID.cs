@@ -9,4 +9,5 @@ public enum ECharacterStateID
     Idle,
     Attacking,
     Dead,
+    Moving,
 }

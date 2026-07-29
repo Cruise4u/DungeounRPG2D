@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 
 /// <summary>
@@ -15,38 +16,37 @@ using UnityEngine;
 /// </summary>
 [RequireComponent(typeof(Character))]
 public class CharacterStateMachine : MonoBehaviour
-{
-    [Tooltip("The team this unit fights for. Leave empty to resolve it from Character.Team.")]
-    [SerializeField] public Team myTeam;
-
+{ 
+    private Character character;
+    private CharacterStats stats;
+    
     public bool isStateMachineActive;
-
-    /// <summary>
-    /// The unit this one is currently fighting — shared context, exactly like <see cref="myTeam"/>.
-    /// Idle writes it once it acquires someone, Attack reads it. Milestone 2's Team Brain writes it
-    /// directly, so pushing a target never means constructing a state differently.
-    /// </summary>
-    public Character CurrentTarget { get; set; }
-
+    
     public ICharacterState CurrentState { get; private set; }
 
     public ECharacterStateID CurrentStateId => CurrentState?.Id ?? ECharacterStateID.Inactive;
 
     /// <summary>Raised after every transition: (previousStateId, newStateId).</summary>
     public event Action<ECharacterStateID, ECharacterStateID> OnStateChanged;
-
     public List<ICharacterState> States { get; private set; }
-
-    private CharacterIdleState _idleState;
-
+    
+    public Dictionary<ECharacterStateID,ICharacterState> StatesDictionary { get; private set; }
+    
     private void Awake()
     {
-        _idleState = new CharacterIdleState(this);
-        States = new List<ICharacterState> { _idleState, new CharacterAttackState(this) };
+        character = GetComponent<Character>();
+        stats = GetComponent<CharacterStats>();
 
-        // The Inspector field wins; otherwise take the team the Character was registered to.
-        if (myTeam == null && TryGetComponent<Character>(out var character))
-            myTeam = character.Team;
+        StatesDictionary = new Dictionary<ECharacterStateID,ICharacterState>
+        {
+            { ECharacterStateID.Idle, new CharacterIdleState(this) },
+            { ECharacterStateID.Attacking, new CharacterIdleState(this) },
+            { ECharacterStateID.Dead, new CharacterIdleState(this) }
+        };
+
+        if (stats != null)
+            stats.OnDied += HandleDied; 
+        
     }
 
     /// <summary>
@@ -59,16 +59,27 @@ public class CharacterStateMachine : MonoBehaviour
         if (isStateMachineActive) return;
 
         isStateMachineActive = true;
-        ChangeState(_idleState);
+        ChangeState(StatesDictionary[ECharacterStateID.Idle]);
     }
 
     /// <summary>Takes the unit out of the fight and back to Inactive (prep / post-match).</summary>
     public void Deactivate()
     {
         isStateMachineActive = false;
-        CurrentTarget = null;
         ChangeState(null);
     }
+
+    private void OnDestroy()
+    {
+        if (stats != null)
+            stats.OnDied -= HandleDied;
+    }
+
+    /// <summary>
+    /// Death outranks whatever the unit was doing — no state gets to veto it, so this transitions
+    /// straight to Dead rather than asking the current state to agree.
+    /// </summary>
+    private void HandleDied(CharacterStats stats) => ChangeState(new CharacterDeadState(this));
 
     private void Update()
     {

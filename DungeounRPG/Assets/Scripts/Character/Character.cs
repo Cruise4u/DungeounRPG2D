@@ -5,9 +5,10 @@ using UnityEngine;
 
 public abstract class Character : MonoBehaviour, ITarget
 {
-    public CharacterStats Stats { get; private set; }
-    
     private SpriteRenderer spriteRenderer;
+    
+    public Team team { get; private set; }
+    public CharacterStats Stats { get; private set; }
     
     public EEvolutionTypeID EvolutionType { get; private set; } = EEvolutionTypeID.Basic;
 
@@ -22,21 +23,22 @@ public abstract class Character : MonoBehaviour, ITarget
     
     // ITarget
     public string TargetName => gameObject.name;
-    public bool IsAlive => Stats.CurrentHp >= 1;
+    public bool IsAlive => !Stats.IsDead;
     
     public void TakeDamage(int damage) => Stats.TakeDamage(damage);
     public void Heal(int amount)       => Stats.Heal(amount);
-    public void TakeStatusEffect(StatusEffect effect)
-    {
-        //Get's the statuseffectshandler of this character
-        //Applies status effect into it
-        throw new System.NotImplementedException();
-    }
     
     protected virtual void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         Stats = GetComponent<CharacterStats>();
+    }
+    
+    public void TakeStatusEffect(StatusEffect effect)
+    {
+        //Get's the statuseffectshandler of this character
+        //Applies status effect into it
+        throw new System.NotImplementedException();
     }
 
     /// <summary>Mirrors CharacterFigurine.SetEvolution — tints the sprite to reflect the current evolution tier.</summary>

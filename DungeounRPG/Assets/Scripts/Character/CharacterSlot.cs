@@ -2,6 +2,11 @@ using UnityEngine;
 
 public class CharacterSlot : MonoBehaviour
 {
+    
+    // 0 -> player
+    // 1 -> CPU
+    public int slotID; 
+    
     public int slotNumber;
     public CharacterFigurine OccupantFigurine { get; private set; }
     public Character OccupantCharacter { get; private set; }

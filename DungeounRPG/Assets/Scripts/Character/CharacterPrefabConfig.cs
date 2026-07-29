@@ -8,7 +8,11 @@ using UnityEngine;
 /// </summary>
 public class CharacterPrefabConfig : MonoBehaviour
 {
-    [SerializeField] private Camera playerCamera;
+    [SerializeField] private Camera cachedCamera;
+    public Camera CharacterCamera => cachedCamera != null ? cachedCamera : FindFirstObjectByType<Camera>();
 
-    public Camera PlayerCamera => playerCamera != null ? playerCamera : Camera.main;
+    public void Awake()
+    {
+        cachedCamera = FindFirstObjectByType<Camera>();
+    }
 }

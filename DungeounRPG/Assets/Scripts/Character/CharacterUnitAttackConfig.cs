@@ -13,7 +13,11 @@ public class CharacterUnitAttackConfig : MonoBehaviour
     [Tooltip("Seconds between attack executions while in the Attacking state.")]
     [SerializeField, Min(0.1f)] private float attackCooldown = 1.5f;
 
+    [Tooltip("How this unit picks among eligible targets when its action targets a single unit.")]
+    [SerializeField] private AITargetStrategy targetStrategy = AITargetStrategy.Nearest;
+
     public CharacterActionSO AttackAction => attackAction;
     public float AttackCooldown => attackCooldown;
+    public AITargetStrategy TargetStrategy => targetStrategy;
     public bool IsUsable => attackAction != null;
 }

@@ -1,28 +1,22 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : CharacterController
+/// <summary>
+/// Translates raw pointer input into prep-grid actions. Player-only by design: the AI has no
+/// input to mimic, it just behaves, so nothing on the enemy side ever needs one of these.
+///
+/// Scope is the prep grid — dragging figurines and merging them. Combat is automatic and runs
+/// in the CombatZone, so no input is read once Fight is pressed.
+/// </summary>
+public class InputController : MonoBehaviour
 {
-    // ─── Combat targeting ─────────────────────────────────────────────────────
-
-    private Camera playerCamera;
+    public Camera InputCamera { get => inputCamera; private set =>  inputCamera = value; }
     
-    [SerializeField] private TargetManager targetManager;
-    [SerializeField] private LayerMask characterLayerMask = ~0;
-    [SerializeField] private Team playerTeam;
-    [SerializeField] private PlayerCharacter _activeCharacter;
-
-    private bool _isTargeting;
-    private CharacterActionSO _pendingAction;
-    private List<ITarget> _currentValidTargets = new();
-
-    // ─── Token drag & merge ───────────────────────────────────────────────────
-
     [Header("Token Drag & Merge")]
     [SerializeField] private CharacterFigurineMerger characterFigurineMerger;
     [SerializeField] private LayerMask tokenLayerMask = ~0;
     [SerializeField] private float snapThreshold = 0.5f;
 
+    private Camera inputCamera;
     private IInputProvider _input;
     private CharacterFigurine _draggedFigurine;
     private Vector3 _dragOrigin;
@@ -32,23 +26,11 @@ public class PlayerController : CharacterController
 
     private void Awake()
     {
-        playerCamera = FindFirstObjectByType<Camera>();
-        if (targetManager == null)
-            targetManager = FindFirstObjectByType<TargetManager>();
+        inputCamera = Camera.main;
 
         _input = Application.isMobilePlatform
             ? (IInputProvider)new TouchInputProvider()
             : new MouseInputProvider();
-    }
-
-    private void OnEnable()
-    {
-
-    }
-
-    private void OnDisable()
-    {
-
     }
 
     private void Update()
@@ -132,38 +114,18 @@ public class PlayerController : CharacterController
 
         return best;
     }
-    
+
     // ─── Helpers ──────────────────────────────────────────────────────────────
-    
-    private void ClearActionState()
-    {
-        ClearHighlights(_currentValidTargets);
-        _isTargeting = false;
-        _pendingAction = null;
-    }
 
     private Vector3 PointerWorldPosition()
     {
         Vector3 screen = _input.PointerScreenPosition;
-        screen.z = -Camera.main.transform.position.z;
-        return playerCamera.ScreenToWorldPoint(screen);
+        screen.z = -inputCamera.transform.position.z;
+        return inputCamera.ScreenToWorldPoint(screen);
     }
 
     private Collider2D OverlapAtPointer(LayerMask mask)
     {
         return Physics2D.OverlapPoint(PointerWorldPosition(), mask);
-    }
-
-    private void HighlightTargets(bool on)
-    {
-        foreach (var t in _currentValidTargets)
-            if (t is Character c) c.SetHighlighted(on);
-    }
-
-    private void ClearHighlights(List<ITarget> targets)
-    {
-        foreach (var t in targets)
-            if (t is Character c) c.SetHighlighted(false);
-        targets.Clear();
     }
 }

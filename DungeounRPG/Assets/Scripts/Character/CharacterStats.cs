@@ -7,6 +7,19 @@ public class CharacterStats : MonoBehaviour
 
     public event Action<int, int> OnHpChanged; // (currentHp, maxHp)
 
+    /// <summary>Raised once, the moment this character drops out of the fight.</summary>
+    public event Action<CharacterStats> OnDied;
+
+    /// <summary>
+    /// At or below this HP the unit is out of the fight. The single place that decides it —
+    /// IsAlive, targeting and the death transition all read this, so they can never disagree.
+    /// Set to 0 for classic "dies at zero" behaviour.
+    /// </summary>
+    public const int DeathThreshold = 1;
+
+    /// <summary>True once HP has fallen to the death threshold. The inverse of Character.IsAlive.</summary>
+    public bool IsDead => CurrentHp <= DeathThreshold;
+
     public int MaxHp { get; private set; }
     public int CurrentHp { get; private set; }
     public int AttackPower { get; private set; }
@@ -35,9 +48,15 @@ public class CharacterStats : MonoBehaviour
 
     public void TakeDamage(int rawDamage)
     {
+        bool wasAlive = !IsDead;
+
         int mitigated = Mathf.Max(0, rawDamage - Armor);
         CurrentHp = Mathf.Max(0, CurrentHp - mitigated);
         OnHpChanged?.Invoke(CurrentHp, MaxHp);
+
+        // Only on the crossing, so a corpse taking splash damage does not die twice.
+        if (wasAlive && IsDead)
+            OnDied?.Invoke(this);
     }
 
     public void Heal(int amount)

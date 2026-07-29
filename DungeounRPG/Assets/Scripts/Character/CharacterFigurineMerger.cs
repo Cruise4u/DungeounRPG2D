@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using DungeonRPG.Grid;
 using UnityEngine;
 
@@ -7,24 +8,21 @@ public class CharacterFigurineMerger : MonoBehaviour
     [SerializeField] private Team team;
     [SerializeField] private CharacterSpawner characterSpawner;
     [SerializeField] private CharacterMerger characterMerger;
-
-    [Header("Combat Zone")]
-    [SerializeField] private CharacterSlot[] combatSlots;
-
+    
     [Header("Evolution Colors")]
     public Color basicColor    = Color.white;
     public Color superColor = Color.cyan;
     public Color megaColor     = Color.magenta;
     public Color ultraColor    = Color.yellow;
 
-    private CharacterSlot[] _slots;
+    private CharacterSlot[] spawningSlot;
 
     // figurine → the combat-zone Character it currently owns (only set once a figurine reaches Super+)
     private readonly Dictionary<CharacterFigurine, Character> _combatCharacters = new();
 
     private void Awake()
     {
-        _slots = FindObjectsByType<CharacterSlot>(FindObjectsSortMode.None);
+        spawningSlot = FindObjectsByType<CharacterSlot>(FindObjectsSortMode.None).Where(slot => slot != null && slot.slotID == 0).ToArray();
     }
 
     private Color ColorForEvolution(EEvolutionTypeID evolution) => evolution switch
@@ -96,7 +94,7 @@ public class CharacterFigurineMerger : MonoBehaviour
 
     private CharacterSlot FindSlotForCharacter(Character character)
     {
-        foreach (var slot in combatSlots)
+        foreach (var slot in spawningSlot)
             if (slot != null && slot.OccupantCharacter == character) return slot;
         return null;
     }
@@ -106,7 +104,7 @@ public class CharacterFigurineMerger : MonoBehaviour
         if (figurine.CharacterPrefab == null) return;
 
         CharacterSlot freeSlot = null;
-        foreach (var slot in combatSlots)
+        foreach (var slot in spawningSlot)
         {
             if (slot != null && !slot.IsOccupied)
             {
