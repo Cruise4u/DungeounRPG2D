@@ -7,6 +7,13 @@ public class CharacterStats : MonoBehaviour
 
     public event Action<int, int> OnHpChanged; // (currentHp, maxHp)
 
+    /// <summary>
+    /// Raised whenever a non-HP stat changes — a merge, a buff, a reset. HP keeps its own
+    /// event because it changes constantly during a fight and UI usually treats it separately;
+    /// this one fires on the rarer "the unit itself got stronger" moments.
+    /// </summary>
+    public event Action<CharacterStats> OnStatsChanged;
+
     /// <summary>Raised once, the moment this character drops out of the fight.</summary>
     public event Action<CharacterStats> OnDied;
 
@@ -44,6 +51,11 @@ public class CharacterStats : MonoBehaviour
         AttackPower = so.attackPower;
         Armor = so.armor;
         Speed = so.speed;
+
+        // Harmless during Awake (nobody has subscribed yet) and necessary for ResetToBase,
+        // which otherwise leaves every bound card showing the pre-reset numbers.
+        OnHpChanged?.Invoke(CurrentHp, MaxHp);
+        OnStatsChanged?.Invoke(this);
     }
 
     public void TakeDamage(int rawDamage)
@@ -65,9 +77,23 @@ public class CharacterStats : MonoBehaviour
         OnHpChanged?.Invoke(CurrentHp, MaxHp);
     }
 
-    public void ModifyAttackPower(int delta) => AttackPower = Mathf.Max(0, AttackPower + delta);
-    public void ModifyArmor(int delta)       => Armor = Mathf.Max(0, Armor + delta);
-    public void ModifySpeed(float delta)     => Speed = Mathf.Max(0f, Speed + delta);
+    public void ModifyAttackPower(int delta)
+    {
+        AttackPower = Mathf.Max(0, AttackPower + delta);
+        OnStatsChanged?.Invoke(this);
+    }
+
+    public void ModifyArmor(int delta)
+    {
+        Armor = Mathf.Max(0, Armor + delta);
+        OnStatsChanged?.Invoke(this);
+    }
+
+    public void ModifySpeed(float delta)
+    {
+        Speed = Mathf.Max(0f, Speed + delta);
+        OnStatsChanged?.Invoke(this);
+    }
 
     public void ResetToBase()
     {
@@ -87,5 +113,6 @@ public class CharacterStats : MonoBehaviour
         Speed += other.Speed;
 
         OnHpChanged?.Invoke(CurrentHp, MaxHp);
+        OnStatsChanged?.Invoke(this);
     }
 }
