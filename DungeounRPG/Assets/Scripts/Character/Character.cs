@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,11 +7,14 @@ using UnityEngine;
 public abstract class Character : MonoBehaviour, ITarget
 {
     private SpriteRenderer spriteRenderer;
-    
+
     public Team team { get; private set; }
     public CharacterStats Stats { get; private set; }
-    
+
     public EEvolutionTypeID EvolutionType { get; private set; } = EEvolutionTypeID.Basic;
+
+    /// <summary>Raised after SetEvolution, so bound UI can show the new tier without polling.</summary>
+    public event Action<Character> OnEvolutionChanged;
 
     /// <summary>
     /// The team this character currently belongs to — the single source of truth for
@@ -47,8 +51,10 @@ public abstract class Character : MonoBehaviour, ITarget
         EvolutionType = evolution;
         if (spriteRenderer != null)
             spriteRenderer.color = color;
+
+        OnEvolutionChanged?.Invoke(this);
     }
-    
+
     public virtual void SetHighlighted(bool highlighted)
     {
         if (spriteRenderer != null)
